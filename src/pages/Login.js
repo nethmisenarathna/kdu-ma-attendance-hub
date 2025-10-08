@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { School } from 'lucide-react';
+import kduLogo from '../assets/images/OIP.jpeg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,7 +16,11 @@ export default function Login() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="flex justify-center">
-            <School className="h-12 w-12 text-blue-600" />
+            <img 
+              src={kduLogo} 
+              alt="KDU Logo" 
+              className="h-16 w-16 object-contain rounded-lg shadow-sm" 
+            />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             KDU Faculty Management Portal

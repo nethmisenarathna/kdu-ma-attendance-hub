@@ -7,9 +7,9 @@ import {
   BookOpen, 
   FileText, 
   Bell, 
-  User,
-  School
+  User
 } from 'lucide-react';
+import kduLogo from '../assets/images/OIP.jpeg';
 
 const menuItems = [
   {
@@ -56,7 +56,11 @@ export function AppSidebar() {
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
       <div className="p-6">
         <div className="flex items-center gap-2">
-          <School className="h-8 w-8 text-blue-600" />
+          <img 
+            src={kduLogo} 
+            alt="KDU Logo" 
+            className="h-10 w-10 object-contain rounded" 
+          />
           <div>
             <h1 className="text-lg font-bold text-gray-900">KDU Faculty</h1>
             <p className="text-sm text-gray-500">Management Hub</p>
