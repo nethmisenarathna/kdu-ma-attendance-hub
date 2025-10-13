@@ -36,3 +36,72 @@
     transform: rotate(360deg);
   }
 }
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  /* Ensure text doesn't overflow on small screens */
+  .truncate-mobile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Smooth transitions for mobile menu */
+.sidebar-transition {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Ensure proper scrolling on mobile */
+@media (max-width: 1024px) {
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Hide scrollbar on mobile sidebar */
+  .mobile-sidebar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .mobile-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Prevent body scroll when mobile sidebar is open */
+.sidebar-open {
+  overflow: hidden;
+}
+
+/* Ensure sidebar is above other content on mobile */
+@media (max-width: 1023px) {
+  .mobile-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 256px;
+    z-index: 50;
+  }
+}
+
+/* Fix desktop layout */
+@media (min-width: 1024px) {
+  .desktop-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .desktop-sidebar {
+    width: 256px;
+    flex-shrink: 0;
+  }
+  
+  .desktop-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}

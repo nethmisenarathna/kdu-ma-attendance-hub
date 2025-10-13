@@ -63,16 +63,16 @@ const recentActivities = [
 
 export default function Dashboard() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
           Welcome to KDU Faculty Management Portal
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard
           title="Total Students"
           value="1,247"
@@ -103,24 +103,24 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Today's Lectures */}
-        <div className="bg-white rounded-lg border p-6">
+        <div className="bg-white rounded-lg border p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Today's Lectures</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Today's Lectures</h2>
             <Clock className="h-5 w-5 text-gray-400" />
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {todaysLectures.map((lecture) => (
-              <div key={lecture.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{lecture.subject}</h3>
-                  <p className="text-sm text-gray-600">{lecture.lecturer}</p>
+              <div key={lecture.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg gap-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 truncate">{lecture.subject}</h3>
+                  <p className="text-sm text-gray-600 truncate">{lecture.lecturer}</p>
                   <p className="text-sm text-gray-500">{lecture.time} • {lecture.room}</p>
                 </div>
-                <div className="text-right">
+                <div className="flex sm:flex-col items-start sm:items-end sm:text-right gap-2 sm:gap-1">
                   <StatusBadge status={lecture.status} />
-                  <p className="text-xs text-gray-500 mt-1">{lecture.students} students</p>
+                  <p className="text-xs text-gray-500">{lecture.students} students</p>
                 </div>
               </div>
             ))}
@@ -128,16 +128,16 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Activities */}
-        <div className="bg-white rounded-lg border p-6">
+        <div className="bg-white rounded-lg border p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recent Activities</h2>
             <AlertCircle className="h-5 w-5 text-gray-400" />
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {recentActivities.map((activity) => (
               <div key={activity.id} className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
-                <div className="flex-1">
+                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900">{activity.activity}</p>
                   <p className="text-xs text-gray-500">{activity.time}</p>
                 </div>

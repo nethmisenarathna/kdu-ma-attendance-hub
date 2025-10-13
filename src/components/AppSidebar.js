@@ -7,7 +7,8 @@ import {
   BookOpen, 
   FileText, 
   Bell, 
-  User
+  User,
+  X
 } from 'lucide-react';
 import kduLogo from '../assets/images/OIP.jpeg';
 
@@ -49,27 +50,36 @@ const menuItems = [
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ onClose }) {
   const location = useLocation();
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-6">
-        <div className="flex items-center gap-2">
-          <img 
-            src={kduLogo} 
-            alt="KDU Logo" 
-            className="h-10 w-10 object-contain rounded" 
-          />
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">KDU Faculty</h1>
-            <p className="text-sm text-gray-500">Management Hub</p>
+    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen shadow-lg lg:shadow-none">
+      <div className="p-4 sm:p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img 
+              src={kduLogo} 
+              alt="KDU Logo" 
+              className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded" 
+            />
+            <div>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900">KDU Faculty</h1>
+              <p className="text-xs sm:text-sm text-gray-500">Management Hub</p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-md hover:bg-gray-100 lg:hidden transition-colors"
+            aria-label="Close sidebar"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
       </div>
       
-      <nav className="flex-1 px-4 pb-4">
-        <ul className="space-y-2">
+      <nav className="flex-1 px-3 sm:px-4 pb-4">
+        <ul className="space-y-1 sm:space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.url;
@@ -78,14 +88,15 @@ export function AppSidebar() {
               <li key={item.title}>
                 <Link
                   to={item.url}
+                  onClick={() => onClose && onClose()}
                   className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
-                  {item.title}
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <span className="truncate">{item.title}</span>
                 </Link>
               </li>
             );
