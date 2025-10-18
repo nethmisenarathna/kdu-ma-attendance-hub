@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { StatusBadge } from '../components/StatusBadge';
-import { List, Grid, Search, ArrowUpDown } from 'lucide-react';
+import { List, Grid, Search, ArrowUpDown, RefreshCw } from 'lucide-react';
+import { studentService } from '../services/studentService';
 
-const studentsData = [
+// Students data will be fetched from API
+const studentsDataStatic = [
   {
     id: 1,
     index_number: "KDU/CS/2024/001",
@@ -126,6 +128,11 @@ const studentsData = [
 ];
 
 export default function Students() {
+  // API Data State
+  const [studentsData, setStudentsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'list'
   
   // Search and Filter states
@@ -152,6 +159,71 @@ export default function Students() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  
+  // Fetch students data from API
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await studentService.getAllStudents();
+        
+        if (response.success && response.data) {
+          // Transform the API data to match the frontend structure
+          const transformedData = response.data.map((student, index) => ({
+            id: index + 1, // Add a frontend ID
+            index_number: student.index_number,
+            name: student.name,
+            email: student.email,
+            department: student.department,
+            intake: student.intake || 'N/A',
+            stream: student.stream || 'N/A',
+            status: 'active' // Default status since API doesn't have this field
+          }));
+          setStudentsData(transformedData);
+        } else {
+          setError('Failed to load students data');
+        }
+      } catch (err) {
+        console.error('Error fetching students:', err);
+        setError('Error connecting to server. Make sure the backend is running on port 5000.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchStudents();
+  }, []); // Empty dependency array means this runs once on component mount
+  
+  // Function to refresh data
+  const refreshStudents = () => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await studentService.getAllStudents();
+        
+        if (response.success && response.data) {
+          const transformedData = response.data.map((student, index) => ({
+            id: index + 1,
+            index_number: student.index_number,
+            name: student.name,
+            email: student.email,
+            department: student.department,
+            intake: student.intake || 'N/A',
+            stream: student.stream || 'N/A',
+            status: 'active'
+          }));
+          setStudentsData(transformedData);
+        }
+      } catch (err) {
+        setError('Error refreshing data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudents();
+  };
   
   // Get unique values for filter dropdowns
   const filterOptions = {
@@ -247,12 +319,59 @@ export default function Students() {
     setSelectedStudent(null);
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Students</h1>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Loading student records...</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Students</h1>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Error loading student records</p>
+          </div>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-red-800 mb-2">Connection Error</h3>
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={refreshStudents}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Students</h1>
-          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Manage student records and information</p>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Manage student records and information ({studentsData.length} students)</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
@@ -281,6 +400,15 @@ export default function Students() {
               List
             </button>
           </div>
+          
+          <button 
+            onClick={refreshStudents}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-md font-medium text-sm transition-colors"
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
           
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm sm:text-base w-full sm:w-auto">
             Add Student
