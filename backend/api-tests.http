@@ -1,0 +1,48 @@
+### Health Check
+GET http://localhost:5000/api/health
+
+### Get All Teachers
+GET http://localhost:5000/api/teachers
+
+### Get All Students
+GET http://localhost:5000/api/students
+
+### Get All Lectures
+GET http://localhost:5000/api/lectures
+
+### Get All Class Sessions
+GET http://localhost:5000/api/class-sessions
+
+### Get All Attendance Records
+GET http://localhost:5000/api/attendance
+
+### Get All Attendance Summaries
+GET http://localhost:5000/api/attendance-summary
+
+### Create a New Teacher
+POST http://localhost:5000/api/teachers
+Content-Type: application/json
+
+{
+  "teacherId": "TCH999",
+  "firstName": "Test",
+  "lastName": "Teacher",
+  "email": "test.teacher@kdu.ac.lk",
+  "department": "Computer Science",
+  "phone": "+94771234999",
+  "specialization": "Testing"
+}
+
+### Get Teacher by ID
+GET http://localhost:5000/api/teachers/TCH001
+
+### Update Teacher
+PUT http://localhost:5000/api/teachers/TCH999
+Content-Type: application/json
+
+{
+  "phone": "+94771234888"
+}
+
+### Delete Teacher
+DELETE http://localhost:5000/api/teachers/TCH999
