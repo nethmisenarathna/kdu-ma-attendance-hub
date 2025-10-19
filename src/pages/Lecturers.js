@@ -1,132 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { StatusBadge } from '../components/StatusBadge';
-import { Search, Grid, List, ArrowUpDown, Plus, X } from 'lucide-react';
-
-// Enhanced lecturers data
-const lecturersData = [
-  {
-    id: 1,
-    employee_id: "EMP001",
-    name: "Dr. Smith Johnson",
-    email: "smith.johnson@kdu.ac.lk",
-    department: "Computer Science",
-    title: "Professor",
-    specialization: "Algorithms & Data Structures",
-    join_date: "2018-03-15",
-    assigned_lectures_count: 8,
-    status: "active"
-  },
-  {
-    id: 2,
-    employee_id: "EMP002",
-    name: "Prof. Sarah Wilson",
-    email: "sarah.wilson@kdu.ac.lk",
-    department: "Information Technology",
-    title: "Associate Professor",
-    specialization: "Database Systems",
-    join_date: "2019-08-22",
-    assigned_lectures_count: 6,
-    status: "active"
-  },
-  {
-    id: 3,
-    employee_id: "EMP003",
-    name: "Dr. Michael Chen",
-    email: "michael.chen@kdu.ac.lk",
-    department: "Computer Science",
-    title: "Assistant Professor",
-    specialization: "Machine Learning",
-    join_date: "2020-01-10",
-    assigned_lectures_count: 5,
-    status: "active"
-  },
-  {
-    id: 4,
-    employee_id: "EMP004",
-    name: "Ms. Emily Davis",
-    email: "emily.davis@kdu.ac.lk",
-    department: "Information Technology",
-    title: "Senior Lecturer",
-    specialization: "Web Development",
-    join_date: "2021-05-18",
-    assigned_lectures_count: 7,
-    status: "active"
-  },
-  {
-    id: 5,
-    employee_id: "EMP005",
-    name: "Dr. Robert Kumar",
-    email: "robert.kumar@kdu.ac.lk",
-    department: "Software Engineering",
-    title: "Associate Professor",
-    specialization: "Software Architecture",
-    join_date: "2017-11-30",
-    assigned_lectures_count: 0,
-    status: "on_leave"
-  },
-  {
-    id: 6,
-    employee_id: "EMP006",
-    name: "Prof. Lisa Anderson",
-    email: "lisa.anderson@kdu.ac.lk",
-    department: "Business Studies",
-    title: "Professor",
-    specialization: "Business Management",
-    join_date: "2016-09-12",
-    assigned_lectures_count: 9,
-    status: "active"
-  },
-  {
-    id: 7,
-    employee_id: "EMP007",
-    name: "Dr. James Wilson",
-    email: "james.wilson@kdu.ac.lk",
-    department: "Engineering",
-    title: "Senior Lecturer",
-    specialization: "Engineering Mathematics",
-    join_date: "2019-02-28",
-    assigned_lectures_count: 4,
-    status: "active"
-  },
-  {
-    id: 8,
-    employee_id: "EMP008",
-    name: "Dr. Amanda Taylor",
-    email: "amanda.taylor@kdu.ac.lk",
-    department: "Computer Science",
-    title: "Assistant Professor",
-    specialization: "Computer Networks",
-    join_date: "2022-01-15",
-    assigned_lectures_count: 3,
-    status: "active"
-  },
-  {
-    id: 9,
-    employee_id: "EMP009",
-    name: "Mr. David Brown",
-    email: "david.brown@kdu.ac.lk",
-    department: "Information Technology",
-    title: "Lecturer",
-    specialization: "Mobile App Development",
-    join_date: "2023-03-20",
-    assigned_lectures_count: 2,
-    status: "active"
-  },
-  {
-    id: 10,
-    employee_id: "EMP010",
-    name: "Prof. Jennifer Garcia",
-    email: "jennifer.garcia@kdu.ac.lk",
-    department: "Software Engineering",
-    title: "Professor",
-    specialization: "Project Management",
-    join_date: "2015-07-08",
-    assigned_lectures_count: 0,
-    status: "inactive"
-  }
-];
+import { Search, Grid, List, ArrowUpDown, Plus, X, RefreshCw } from 'lucide-react';
+import { lecturerService } from '../services/lecturerService';
 
 const Lecturers = () => {
+  // API Data State
+  const [lecturersData, setLecturersData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   // State management
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
@@ -142,6 +24,75 @@ const Lecturers = () => {
   const [editingLecturer, setEditingLecturer] = useState(null);
   const [deletingLecturer, setDeletingLecturer] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Fetch lecturers data from API
+  useEffect(() => {
+    const fetchLecturers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await lecturerService.getAllLecturers();
+        
+        if (response.success && response.data) {
+          // Transform the API data to match the frontend structure
+          const transformedData = response.data.map((teacher, index) => ({
+            id: index + 1,
+            employee_id: `EMP${String(index + 1).padStart(3, '0')}`, // Generate employee ID
+            name: teacher.name,
+            email: teacher.email,
+            department: teacher.department,
+            title: 'Lecturer', // Default title since API doesn't have this field
+            specialization: 'General', // Default specialization
+            join_date: '2023-01-01', // Default join date
+            assigned_lectures_count: Math.floor(Math.random() * 10) + 1, // Random count
+            status: 'active' // Default status
+          }));
+          setLecturersData(transformedData);
+        } else {
+          setError('Failed to load lecturers data');
+        }
+      } catch (err) {
+        console.error('Error fetching lecturers:', err);
+        setError('Error connecting to server. Make sure the backend is running on port 5000.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchLecturers();
+  }, []); // Empty dependency array means this runs once on component mount
+  
+  // Function to refresh data
+  const handleRefresh = () => {
+    const fetchLecturers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await lecturerService.getAllLecturers();
+        
+        if (response.success && response.data) {
+          const transformedData = response.data.map((teacher, index) => ({
+            id: index + 1,
+            employee_id: `EMP${String(index + 1).padStart(3, '0')}`,
+            name: teacher.name,
+            email: teacher.email,
+            department: teacher.department,
+            title: 'Lecturer',
+            specialization: 'General',
+            join_date: '2023-01-01',
+            assigned_lectures_count: Math.floor(Math.random() * 10) + 1,
+            status: 'active'
+          }));
+          setLecturersData(transformedData);
+        }
+      } catch (err) {
+        setError('Error refreshing data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLecturers();
+  };
 
   // Filter options
   const filterOptions = useMemo(() => {
@@ -284,6 +235,33 @@ const Lecturers = () => {
 
   return (
     <div className="space-y-6">
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center p-8">
+          <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="ml-2 text-gray-600">Loading lecturers...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <X className="h-5 w-5 text-red-400 mr-2" />
+            <span className="text-red-800">{error}</span>
+            <button
+              onClick={handleRefresh}
+              className="ml-auto bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content - Only show when not loading and no error */}
+      {!loading && !error && (
+        <>
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
         <div>
@@ -291,6 +269,15 @@ const Lecturers = () => {
           <p className="mt-2 text-gray-600">Manage faculty members and their information</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
+          {/* Refresh Button */}
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-medium flex items-center gap-2 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
           {/* View Toggle - Desktop only */}
           <div className="hidden lg:flex border border-gray-300 rounded-md">
             <button
@@ -609,6 +596,8 @@ const Lecturers = () => {
           onSave={handleAddLecturer}
           onClose={() => setShowAddModal(false)}
         />
+      )}
+        </>
       )}
     </div>
   );
