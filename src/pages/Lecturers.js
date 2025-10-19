@@ -101,7 +101,7 @@ const Lecturers = () => {
     return {
       departments: departments.sort()
     };
-  }, []);
+  }, [lecturersData]);
 
   // Filter and search logic
   const filteredAndSortedData = useMemo(() => {
@@ -138,7 +138,7 @@ const Lecturers = () => {
     }
 
     return filtered;
-  }, [searchTerm, filters, sortConfig]);
+  }, [lecturersData, searchTerm, filters, sortConfig]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedData.length / itemsPerPage);

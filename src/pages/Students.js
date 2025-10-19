@@ -226,12 +226,12 @@ export default function Students() {
   };
   
   // Get unique values for filter dropdowns
-  const filterOptions = {
+  const filterOptions = useMemo(() => ({
     departments: [...new Set(studentsData.map(s => s.department))],
     intakes: [...new Set(studentsData.map(s => s.intake))].sort(),
     streams: [...new Set(studentsData.map(s => s.stream))],
     statuses: [...new Set(studentsData.map(s => s.status))]
-  };
+  }), [studentsData]);
 
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
@@ -267,7 +267,7 @@ export default function Students() {
     }
 
     return filtered;
-  }, [searchTerm, filters, sortConfig]);
+  }, [studentsData, searchTerm, filters, sortConfig]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredAndSortedData.length / itemsPerPage);
