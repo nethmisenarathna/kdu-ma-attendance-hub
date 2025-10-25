@@ -27,6 +27,13 @@ app.use('/api', routes);
 // Error handler middleware
 app.use(errorHandler);
 
+// Add detailed error logging
+app.use((err, req, res, next) => {
+  console.error('Detailed Error:', err);
+  console.error('Stack:', err.stack);
+  next(err);
+});
+
 // Root route
 app.get('/', (req, res) => {
   res.json({
@@ -36,10 +43,34 @@ app.get('/', (req, res) => {
   });
 });
 
+// Simple test route
+app.get('/test', (req, res) => {
+  res.json({
+    message: 'Test endpoint working',
+    timestamp: new Date().toISOString()
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.log(`Error: ${err.message}`);
+  console.log('Unhandled Promise Rejection. Shutting down...');
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.log(`Error: ${err.message}`);
+  console.log('Uncaught Exception. Shutting down...');
+  process.exit(1);
 });
 
 module.exports = app;
