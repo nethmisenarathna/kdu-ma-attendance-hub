@@ -113,7 +113,7 @@ Server running in development mode on port 5000
 MongoDB Connected: your-cluster.mongodb.net
 ```
 
-**Start Frontend Application (Terminal 2):**
+**Start Frontend Application(main directory) (Terminal 2):**
 ```bash
 npm start
 ```
