@@ -8,6 +8,7 @@ const lectureRoutes = require('./lectures');
 const classSessionRoutes = require('./classSessions');
 // const attendanceRoutes = require('./attendance'); // Commented out - no attendance records in database
 const attendanceSummaryRoutes = require('./attendanceSummary');
+const dashboardRoutes = require('./dashboard');
 
 // Use route modules
 router.use('/teachers', teacherRoutes);
@@ -16,6 +17,7 @@ router.use('/lectures', lectureRoutes);
 router.use('/class-sessions', classSessionRoutes);
 // router.use('/attendance', attendanceRoutes); // Commented out - no attendance records in database
 router.use('/attendance-summary', attendanceSummaryRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 // Health check route
 router.get('/health', (req, res) => {

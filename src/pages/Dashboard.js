@@ -11,6 +11,7 @@ import {
 import { StatsCard } from '../components/StatsCard';
 import { StatusBadge } from '../components/StatusBadge';
 import { lectureService } from '../services/lectureService';
+import { dashboardService } from '../services/dashboardService';
 
 const recentActivities = [
   {
@@ -37,6 +38,18 @@ export default function Dashboard() {
   const [lectureStats, setLectureStats] = useState({
     todaysLectures: 0,
     ongoingLectures: 0
+  });
+  const [dashboardStats, setDashboardStats] = useState({
+    students: {
+      total: 0,
+      changeText: 'Loading...',
+      changeType: 'neutral'
+    },
+    lecturers: {
+      total: 0,
+      changeText: 'Loading...',
+      changeType: 'neutral'
+    }
   });
   const [todaysLectures, setTodaysLectures] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,21 +113,22 @@ export default function Dashboard() {
     }
   };
 
-  // Fetch lecture data
+  // Fetch lecture data and dashboard stats
   useEffect(() => {
-    const fetchLectureData = async () => {
+    const fetchAllData = async () => {
       try {
         setLoading(true);
-        const response = await lectureService.getTodaysLectureStats();
         
-        if (response.success && response.data) {
+        // Fetch lecture stats
+        const lectureResponse = await lectureService.getTodaysLectureStats();
+        if (lectureResponse.success && lectureResponse.data) {
           setLectureStats({
-            todaysLectures: response.data.todaysLectures,
-            ongoingLectures: response.data.ongoingLectures
+            todaysLectures: lectureResponse.data.todaysLectures,
+            ongoingLectures: lectureResponse.data.ongoingLectures
           });
 
           // Process lectures with status
-          const lecturesWithStatus = response.data.todaysLectureList.map(lecture => ({
+          const lecturesWithStatus = lectureResponse.data.todaysLectureList.map(lecture => ({
             ...lecture,
             status: getLectureStatus(lecture),
             displayTime: `${formatTime(lecture.start_time)} - ${formatTime(lecture.end_time)}`
@@ -122,18 +136,35 @@ export default function Dashboard() {
 
           setTodaysLectures(lecturesWithStatus);
         }
+        
+        // Fetch dashboard stats (students and lecturers)
+        const dashboardResponse = await dashboardService.getDashboardStats();
+        if (dashboardResponse.success && dashboardResponse.data) {
+          setDashboardStats({
+            students: {
+              total: dashboardResponse.data.students.total,
+              changeText: dashboardResponse.data.students.changeText,
+              changeType: dashboardResponse.data.students.changeType
+            },
+            lecturers: {
+              total: dashboardResponse.data.lecturers.total,
+              changeText: dashboardResponse.data.lecturers.changeText,
+              changeType: dashboardResponse.data.lecturers.changeType
+            }
+          });
+        }
       } catch (error) {
-        console.error('Error fetching lecture data:', error);
+        console.error('Error fetching dashboard data:', error);
       } finally {
         setLoading(false);
       }
     };
 
     // Fetch initial data
-    fetchLectureData();
+    fetchAllData();
 
     // Refresh data every minute
-    const interval = setInterval(fetchLectureData, 60000);
+    const interval = setInterval(fetchAllData, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -155,17 +186,17 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard
           title="Total Students"
-          value="1,247"
+          value={loading ? "..." : dashboardStats.students.total.toLocaleString()}
           icon={Users}
-          change="+12% from last month"
-          changeType="positive"
+          change={loading ? "Loading..." : dashboardStats.students.changeText}
+          changeType={dashboardStats.students.changeType}
         />
         <StatsCard
           title="Active Lecturers"
-          value="89"
+          value={loading ? "..." : dashboardStats.lecturers.total.toString()}
           icon={GraduationCap}
-          change="+3% from last month"
-          changeType="positive"
+          change={loading ? "Loading..." : dashboardStats.lecturers.changeText}
+          changeType={dashboardStats.lecturers.changeType}
         />
         <StatsCard
           title="Today's Lectures"
