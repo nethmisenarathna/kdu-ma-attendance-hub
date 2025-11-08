@@ -1,44 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   GraduationCap, 
   BookOpen, 
   Clock,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { StatsCard } from '../components/StatsCard';
 import { StatusBadge } from '../components/StatusBadge';
-
-const todaysLectures = [
-  {
-    id: 1,
-    subject: "Advanced Algorithms",
-    lecturer: "Dr. Smith Johnson",
-    time: "09:00 - 11:00",
-    room: "Lab 101",
-    status: "ongoing",
-    students: 45,
-  },
-  {
-    id: 2,
-    subject: "Database Systems",
-    lecturer: "Prof. Sarah Wilson",
-    time: "11:30 - 13:30",
-    room: "Room 204",
-    status: "scheduled",
-    students: 38,
-  },
-  {
-    id: 3,
-    subject: "Machine Learning",
-    lecturer: "Dr. Michael Chen",
-    time: "14:00 - 16:00",
-    room: "Lab 205",
-    status: "scheduled",
-    students: 42,
-  },
-];
+import { lectureService } from '../services/lectureService';
 
 const recentActivities = [
   {
@@ -62,6 +34,114 @@ const recentActivities = [
 ];
 
 export default function Dashboard() {
+  const [lectureStats, setLectureStats] = useState({
+    todaysLectures: 0,
+    ongoingLectures: 0
+  });
+  const [todaysLectures, setTodaysLectures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAllLectures, setShowAllLectures] = useState(false);
+
+  // Helper function to format time from ISO string or time string
+  const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+    
+    // If it's an ISO date string
+    if (timeStr.includes('T')) {
+      const date = new Date(timeStr);
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+    }
+    
+    // If it's already in HH:MM format
+    return timeStr;
+  };
+
+  // Helper function to convert time to minutes
+  const timeToMinutes = (timeStr) => {
+    if (!timeStr) return null;
+    
+    let hours, minutes;
+    
+    // If it's an ISO date string
+    if (timeStr.includes('T')) {
+      const date = new Date(timeStr);
+      hours = date.getHours();
+      minutes = date.getMinutes();
+    } else {
+      // If it's in HH:MM format
+      [hours, minutes] = timeStr.split(':').map(Number);
+    }
+    
+    return hours * 60 + minutes;
+  };
+
+  // Helper function to determine lecture status
+  const getLectureStatus = (lecture) => {
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    
+    const startTime = timeToMinutes(lecture.start_time);
+    const endTime = timeToMinutes(lecture.end_time);
+    
+    if (startTime === null || endTime === null) {
+      return 'scheduled';
+    }
+    
+    if (currentTime >= startTime && currentTime <= endTime) {
+      return 'ongoing';
+    } else if (currentTime > endTime) {
+      return 'ended';
+    } else {
+      return 'scheduled';
+    }
+  };
+
+  // Fetch lecture data
+  useEffect(() => {
+    const fetchLectureData = async () => {
+      try {
+        setLoading(true);
+        const response = await lectureService.getTodaysLectureStats();
+        
+        if (response.success && response.data) {
+          setLectureStats({
+            todaysLectures: response.data.todaysLectures,
+            ongoingLectures: response.data.ongoingLectures
+          });
+
+          // Process lectures with status
+          const lecturesWithStatus = response.data.todaysLectureList.map(lecture => ({
+            ...lecture,
+            status: getLectureStatus(lecture),
+            displayTime: `${formatTime(lecture.start_time)} - ${formatTime(lecture.end_time)}`
+          }));
+
+          setTodaysLectures(lecturesWithStatus);
+        }
+      } catch (error) {
+        console.error('Error fetching lecture data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Fetch initial data
+    fetchLectureData();
+
+    // Refresh data every minute
+    const interval = setInterval(fetchLectureData, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Get first 3 lectures for display
+  const displayedLectures = todaysLectures.slice(0, 3);
+  const hasMoreLectures = todaysLectures.length > 3;
+
   return (
     <div className="space-y-6 sm:space-y-8">
       <div>
@@ -89,9 +169,9 @@ export default function Dashboard() {
         />
         <StatsCard
           title="Today's Lectures"
-          value="24"
+          value={loading ? "..." : lectureStats.todaysLectures.toString()}
           icon={BookOpen}
-          change="6 ongoing now"
+          change={loading ? "Loading..." : `${lectureStats.ongoingLectures} ongoing now`}
           changeType="neutral"
         />
         <StatsCard
@@ -110,21 +190,56 @@ export default function Dashboard() {
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Today's Lectures</h2>
             <Clock className="h-5 w-5 text-gray-400" />
           </div>
-          <div className="space-y-3 sm:space-y-4">
-            {todaysLectures.map((lecture) => (
-              <div key={lecture.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg gap-3">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 truncate">{lecture.subject}</h3>
-                  <p className="text-sm text-gray-600 truncate">{lecture.lecturer}</p>
-                  <p className="text-sm text-gray-500">{lecture.time} • {lecture.room}</p>
-                </div>
-                <div className="flex sm:flex-col items-start sm:items-end sm:text-right gap-2 sm:gap-1">
-                  <StatusBadge status={lecture.status} />
-                  <p className="text-xs text-gray-500">{lecture.students} students</p>
-                </div>
+          
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+              <p className="mt-2 text-sm">Loading lectures...</p>
+            </div>
+          ) : todaysLectures.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+              <p className="text-sm">No lectures scheduled for today</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3 sm:space-y-4">
+                {displayedLectures.map((lecture, index) => (
+                  <div key={lecture._id || index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">{lecture.subject}</h3>
+                      <p className="text-sm text-gray-600 truncate">
+                        {lecture.lecturer_name || 'Lecturer TBA'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {lecture.displayTime} • {lecture.location || 'Location TBA'}
+                      </p>
+                    </div>
+                    <div className="flex sm:flex-col items-start sm:items-end sm:text-right gap-2 sm:gap-1">
+                      <StatusBadge status={lecture.status} />
+                      <div className="text-xs text-gray-500 space-y-0.5">
+                        {lecture.student_count !== undefined && lecture.student_count > 0 && (
+                          <p>{lecture.student_count} students</p>
+                        )}
+                        {lecture.intake && (
+                          <p>Intake {lecture.intake}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              
+              {hasMoreLectures && (
+                <button
+                  onClick={() => setShowAllLectures(true)}
+                  className="mt-4 w-full py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg transition-colors duration-200 text-sm"
+                >
+                  Show More ({todaysLectures.length - 3} more lectures)
+                </button>
+              )}
+            </>
+          )}
         </div>
 
         {/* Recent Activities */}
@@ -146,6 +261,105 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Show All Lectures Modal */}
+      {showAllLectures && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+              <div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  All Today's Lectures
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Total: {todaysLectures.length} lectures scheduled
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAllLectures(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+              <div className="space-y-3">
+                {todaysLectures.map((lecture, index) => (
+                  <div 
+                    key={lecture._id || index} 
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg gap-3 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-2">
+                        <span className="text-sm font-semibold text-gray-500 mt-0.5">
+                          {index + 1}.
+                        </span>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900">
+                            {lecture.subject}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {lecture.lecturer_name || 'Lecturer TBA'}
+                          </p>
+                          <div className="flex flex-wrap gap-2 mt-2 text-xs text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {lecture.displayTime}
+                            </span>
+                            {lecture.location && (
+                              <span>• {lecture.location}</span>
+                            )}
+                            {lecture.lecture_code && (
+                              <span>• Code: {lecture.lecture_code}</span>
+                            )}
+                            {lecture.intake && (
+                              <span>• Intake {lecture.intake}</span>
+                            )}
+                            {lecture.student_count !== undefined && lecture.student_count > 0 && (
+                              <span>• {lecture.student_count} students</span>
+                            )}
+                            {lecture.department && (
+                              <span>• {lecture.department}</span>
+                            )}
+                          </div>
+                          {lecture.streams && lecture.streams.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {lecture.streams.map((stream, i) => (
+                                <span 
+                                  key={i}
+                                  className="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs"
+                                >
+                                  {stream}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex sm:flex-col items-start sm:items-end gap-2 sm:gap-2">
+                      <StatusBadge status={lecture.status} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="border-t p-4 sm:p-6 bg-gray-50">
+              <button
+                onClick={() => setShowAllLectures(false)}
+                className="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

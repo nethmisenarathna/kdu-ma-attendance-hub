@@ -4,8 +4,12 @@ const {
   getAllLectures,
   getLectureByCode,
   getLecturesByDepartment,
-  getLecturesByIntake
+  getLecturesByIntake,
+  getTodaysLectureStats
 } = require('../controllers/lectureController');
+
+// GET /api/lectures/stats/today - Get today's lecture statistics
+router.get('/stats/today', getTodaysLectureStats);
 
 // GET /api/lectures - Get all lectures (your real 26 lectures)
 router.get('/', getAllLectures);

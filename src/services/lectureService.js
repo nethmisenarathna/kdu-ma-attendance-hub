@@ -111,5 +111,23 @@ export const lectureService = {
         error: error.message
       };
     }
+  },
+
+  // Get today's lecture statistics
+  getTodaysLectureStats: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/lectures/stats/today`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const apiResponse = await response.json();
+      return apiResponse;
+    } catch (error) {
+      console.error('Error fetching today\'s lecture stats:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
   }
 };
