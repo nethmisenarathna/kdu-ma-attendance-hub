@@ -6,7 +6,7 @@ const teacherRoutes = require('./teachers');
 const studentRoutes = require('./students');
 const lectureRoutes = require('./lectures');
 const classSessionRoutes = require('./classSessions');
-// const attendanceRoutes = require('./attendance'); // Commented out - no attendance records in database
+const attendanceRoutes = require('./attendance');
 const attendanceSummaryRoutes = require('./attendanceSummary');
 const dashboardRoutes = require('./dashboard');
 
@@ -15,7 +15,7 @@ router.use('/teachers', teacherRoutes);
 router.use('/students', studentRoutes);
 router.use('/lectures', lectureRoutes);
 router.use('/class-sessions', classSessionRoutes);
-// router.use('/attendance', attendanceRoutes); // Commented out - no attendance records in database
+router.use('/attendance', attendanceRoutes);
 router.use('/attendance-summary', attendanceSummaryRoutes);
 router.use('/dashboard', dashboardRoutes);
 

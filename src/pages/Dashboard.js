@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
   GraduationCap, 
@@ -6,7 +7,8 @@ import {
   Clock,
   TrendingUp,
   AlertCircle,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { StatsCard } from '../components/StatsCard';
 import { StatusBadge } from '../components/StatusBadge';
@@ -35,6 +37,7 @@ const recentActivities = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [lectureStats, setLectureStats] = useState({
     todaysLectures: 0,
     ongoingLectures: 0
@@ -169,6 +172,13 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // Handler to navigate to attendance sheet
+  const handleViewAttendance = (lecture) => {
+    const today = new Date().toISOString().split('T')[0];
+    const lectureId = lecture.lecture_id || lecture.lecture_code;
+    navigate(`/attendance/${lectureId}/${today}`);
+  };
+
   // Get first 3 lectures for display
   const displayedLectures = todaysLectures.slice(0, 3);
   const hasMoreLectures = todaysLectures.length > 3;
@@ -236,9 +246,16 @@ export default function Dashboard() {
             <>
               <div className="space-y-3 sm:space-y-4">
                 {displayedLectures.map((lecture, index) => (
-                  <div key={lecture._id || index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg gap-3">
+                  <div 
+                    key={lecture._id || index} 
+                    onClick={() => handleViewAttendance(lecture)}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg gap-3 hover:bg-blue-50 cursor-pointer transition-colors duration-200 border border-transparent hover:border-blue-200"
+                  >
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">{lecture.subject}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-gray-900 truncate">{lecture.subject}</h3>
+                        <FileText className="w-4 h-4 text-gray-400" />
+                      </div>
                       <p className="text-sm text-gray-600 truncate">
                         {lecture.lecturer_name || 'Lecturer TBA'}
                       </p>
@@ -320,8 +337,12 @@ export default function Dashboard() {
               <div className="space-y-3">
                 {todaysLectures.map((lecture, index) => (
                   <div 
-                    key={lecture._id || index} 
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg gap-3 hover:bg-gray-100 transition-colors"
+                    key={lecture._id || index}
+                    onClick={() => {
+                      setShowAllLectures(false);
+                      handleViewAttendance(lecture);
+                    }}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg gap-3 hover:bg-blue-50 transition-colors cursor-pointer border border-transparent hover:border-blue-200"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-2">
@@ -329,9 +350,12 @@ export default function Dashboard() {
                           {index + 1}.
                         </span>
                         <div className="flex-1">
-                          <h3 className="font-medium text-gray-900">
-                            {lecture.subject}
-                          </h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-900">
+                              {lecture.subject}
+                            </h3>
+                            <FileText className="w-4 h-4 text-gray-400" />
+                          </div>
                           <p className="text-sm text-gray-600 mt-1">
                             {lecture.lecturer_name || 'Lecturer TBA'}
                           </p>

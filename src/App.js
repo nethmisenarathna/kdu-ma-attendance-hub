@@ -11,6 +11,7 @@ import Lectures from './pages/Lectures';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
+import AttendanceSheet from './pages/AttendanceSheet';
 import NotFound from './pages/NotFound';
 import { Menu } from 'lucide-react';
 import './App.css';
@@ -88,6 +89,8 @@ function AppLayout() {
               <Route path="/students" element={<Students />} />
               <Route path="/lecturers" element={<Lecturers />} />
               <Route path="/lectures" element={<Lectures />} />
+              <Route path="/attendance/:lectureId/:date" element={<AttendanceSheet />} />
+              <Route path="/attendance/:lectureId" element={<AttendanceSheet />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/profile" element={<Profile />} />
