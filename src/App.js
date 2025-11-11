@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppSidebar } from './components/AppSidebar';
 import { UserProfile } from './components/UserProfile';
+import authService from './services/authService';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
@@ -18,10 +19,37 @@ import './App.css';
 
 const queryClient = new QueryClient();
 
+// Protected Route Component
+function ProtectedRoute({ children }) {
+  const isAuthenticated = authService.isAuthenticated();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+}
+
 function AppLayout() {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
+
+  // Check authentication on mount and location change
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authenticated = authService.isAuthenticated();
+      setIsAuthenticated(authenticated);
+      
+      // If not authenticated and not on login page, redirect to login
+      if (!authenticated && !isLoginPage) {
+        window.location.href = '/login';
+      }
+    };
+    
+    checkAuth();
+  }, [location.pathname, isLoginPage]);
 
   // Prevent body scroll when sidebar is open on mobile
   React.useEffect(() => {
@@ -85,16 +113,17 @@ function AppLayout() {
         </header>
           <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/students" element={<Students />} />
-              <Route path="/lecturers" element={<Lecturers />} />
-              <Route path="/lectures" element={<Lectures />} />
-              <Route path="/attendance/:lectureId/:date" element={<AttendanceSheet />} />
-              <Route path="/attendance/:lectureId" element={<AttendanceSheet />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Profile />} />
+              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
+              <Route path="/lecturers" element={<ProtectedRoute><Lecturers /></ProtectedRoute>} />
+              <Route path="/lectures" element={<ProtectedRoute><Lectures /></ProtectedRoute>} />
+              <Route path="/attendance/:lectureId/:date" element={<ProtectedRoute><AttendanceSheet /></ProtectedRoute>} />
+              <Route path="/attendance/:lectureId" element={<ProtectedRoute><AttendanceSheet /></ProtectedRoute>} />
+              <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
