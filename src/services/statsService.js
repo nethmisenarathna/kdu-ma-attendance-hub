@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:5000/api/stats';
+import { ENDPOINTS } from '../config';
+
+const API_URL = ENDPOINTS.STATS;
 
 class StatsService {
   // Get completion rate for current week

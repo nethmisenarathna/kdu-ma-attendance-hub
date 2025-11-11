@@ -1,6 +1,8 @@
 import authService from './authService';
 
-const API_URL = 'http://localhost:5000/api/admin';
+import { ENDPOINTS } from '../config';
+
+const API_URL = ENDPOINTS.ADMIN;
 
 class AdminService {
   // Get admin profile

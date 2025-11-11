@@ -1,6 +1,8 @@
 import authService from './authService';
 
-const API_URL = 'http://localhost:5000/api/notifications';
+import { ENDPOINTS } from '../config';
+
+const API_URL = ENDPOINTS.NOTIFICATIONS;
 
 class NotificationService {
   // Create a new notification (send message)

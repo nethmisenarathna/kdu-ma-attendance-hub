@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/reports';
+import { ENDPOINTS } from '../config';
+
+const API_URL = ENDPOINTS.REPORTS;
 
 // Get report statistics
 export const getReportStats = async () => {

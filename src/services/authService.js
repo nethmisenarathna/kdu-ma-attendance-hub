@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:5000/api/auth';
+import { ENDPOINTS } from '../config';
+
+const API_URL = ENDPOINTS.AUTH;
 
 class AuthService {
   // Login user

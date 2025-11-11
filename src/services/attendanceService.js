@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_URL, ENDPOINTS } from '../config';
+
+const API_BASE_URL = API_URL;
 
 /**
  * Get attendance records for a specific lecture
