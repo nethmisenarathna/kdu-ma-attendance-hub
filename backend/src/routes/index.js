@@ -4,6 +4,7 @@ const router = express.Router();
 // Import all route modules
 const authRoutes = require('./auth');
 const adminRoutes = require('./admin');
+const statsRoutes = require('./stats');
 const teacherRoutes = require('./teachers');
 const studentRoutes = require('./students');
 const lectureRoutes = require('./lectures');
@@ -15,6 +16,7 @@ const dashboardRoutes = require('./dashboard');
 // Use route modules
 router.use('/auth', authRoutes);
 router.use('/admin', adminRoutes);
+router.use('/stats', statsRoutes);
 router.use('/teachers', teacherRoutes);
 router.use('/students', studentRoutes);
 router.use('/lectures', lectureRoutes);
