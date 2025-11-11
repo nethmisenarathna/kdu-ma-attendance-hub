@@ -10,6 +10,7 @@ import Students from './pages/Students';
 import Lecturers from './pages/Lecturers';
 import Lectures from './pages/Lectures';
 import Reports from './pages/Reports';
+import Message from './pages/Message';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import AttendanceSheet from './pages/AttendanceSheet';
@@ -121,6 +122,7 @@ function AppLayout() {
               <Route path="/attendance/:lectureId/:date" element={<ProtectedRoute><AttendanceSheet /></ProtectedRoute>} />
               <Route path="/attendance/:lectureId" element={<ProtectedRoute><AttendanceSheet /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/message" element={<ProtectedRoute><Message /></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -9,12 +9,14 @@ import {
   Bell, 
   User,
   X,
-  LogOut
+  LogOut,
+  Send
 } from 'lucide-react';
 import authService from '../services/authService';
+import notificationService from '../services/notificationService';
 import kduLogo from '../assets/images/OIP.jpeg';
 
-const menuItems = [
+const baseMenuItems = [
   {
     title: "Dashboard",
     url: "/",
@@ -55,6 +57,29 @@ const menuItems = [
 export function AppSidebar({ onClose }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [canSend, setCanSend] = useState(false);
+
+  useEffect(() => {
+    // Check if user can send notifications
+    const checkPermissions = async () => {
+      const hasPermission = await notificationService.canSendNotifications();
+      setCanSend(hasPermission);
+    };
+    checkPermissions();
+  }, []);
+
+  // Build menu items dynamically
+  const menuItems = [...baseMenuItems];
+  
+  // Insert Message link after Reports if user has permission
+  if (canSend) {
+    const reportsIndex = menuItems.findIndex(item => item.title === "Reports");
+    menuItems.splice(reportsIndex + 1, 0, {
+      title: "Message",
+      url: "/message",
+      icon: Send,
+    });
+  }
 
   const handleLogout = async () => {
     try {

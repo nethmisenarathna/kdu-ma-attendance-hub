@@ -5,5 +5,6 @@ module.exports = {
   Student: require('./Student'),
   Lecture: require('./Lecture'),
   ClassSession: require('./ClassSession'),
-  AttendanceSummary: require('./AttendanceSummary')
+  AttendanceSummary: require('./AttendanceSummary'),
+  Notification: require('./Notification')
 };

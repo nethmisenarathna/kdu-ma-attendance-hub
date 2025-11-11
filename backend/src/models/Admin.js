@@ -21,6 +21,10 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  can_send_notifications: {
+    type: Boolean,
+    default: false
+  },
   lastLogin: {
     type: Date
   },
