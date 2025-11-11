@@ -4,6 +4,12 @@ const {
   getAttendanceByLecture,
   getAttendanceByLectureAndDate
 } = require('../controllers/attendanceController');
+const {
+  exportAttendanceSummary
+} = require('../controllers/attendanceExportController');
+
+// GET /api/attendance/export - Export attendance summary as Excel
+router.get('/export', exportAttendanceSummary);
 
 // GET /api/attendance/lecture/:lectureId - Get attendance by lecture ID
 router.get('/lecture/:lectureId', getAttendanceByLecture);

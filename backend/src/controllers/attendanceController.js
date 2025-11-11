@@ -47,6 +47,45 @@ const getAttendanceByLecture = async (req, res) => {
       ]
     });
     
+    // Enrich lecture info with lecturer name(s)
+    let enrichedLectureInfo = null;
+    if (lecture) {
+      enrichedLectureInfo = { ...lecture };
+      
+      // Get lecturer name(s) from email(s)
+      if (lecture.lecturer_email) {
+        const teachersCollection = db.collection('teachers');
+        
+        // Check if it's an array or a single string
+        const lecturerEmails = Array.isArray(lecture.lecturer_email) 
+          ? lecture.lecturer_email 
+          : [lecture.lecturer_email];
+        
+        const lecturerNames = await Promise.all(
+          lecturerEmails.map(async (email) => {
+            const teacher = await teachersCollection.findOne({ 
+              $or: [
+                { email: email },
+                { teacher_email: email }
+              ]
+            });
+            return teacher ? teacher.name : null;
+          })
+        );
+        
+        // Filter out null values
+        const validNames = lecturerNames.filter(name => name !== null);
+        
+        if (validNames.length > 0) {
+          enrichedLectureInfo.lecturer_name = validNames.join(', '); // Join all names for display
+        } else {
+          enrichedLectureInfo.lecturer_name = 'N/A';
+        }
+      } else {
+        enrichedLectureInfo.lecturer_name = 'N/A';
+      }
+    }
+    
     // Group students by department/intake
     const csDepartment = attendanceRecords.filter(record => 
       record.intake && (record.intake.includes('CS') || 
@@ -93,7 +132,7 @@ const getAttendanceByLecture = async (req, res) => {
       success: true,
       data: {
         lecture_id: lectureId,
-        lecture_info: lecture || null,
+        lecture_info: enrichedLectureInfo,
         date: attendanceRecords[0]?.date || null,
         records: {
           cs: csDepartment,
@@ -147,14 +186,35 @@ const getAttendanceByLectureAndDate = async (req, res) => {
       });
     }
     
-    // Get teacher name
+    // Get teacher name(s)
     const teachersCollection = db.collection('teachers');
-    const teacher = await teachersCollection.findOne({ 
-      $or: [
-        { teacher_email: lecture.lecturer_email },
-        { email: lecture.lecturer_email }
-      ]
-    });
+    let lecturerName = 'N/A';
+    
+    if (lecture.lecturer_email) {
+      // Check if it's an array or a single string
+      const lecturerEmails = Array.isArray(lecture.lecturer_email) 
+        ? lecture.lecturer_email 
+        : [lecture.lecturer_email];
+      
+      const lecturerNames = await Promise.all(
+        lecturerEmails.map(async (email) => {
+          const teacher = await teachersCollection.findOne({ 
+            $or: [
+              { email: email },
+              { teacher_email: email }
+            ]
+          });
+          return teacher ? teacher.name : null;
+        })
+      );
+      
+      // Filter out null values
+      const validNames = lecturerNames.filter(name => name !== null);
+      
+      if (validNames.length > 0) {
+        lecturerName = validNames.join(', '); // Join all names for display
+      }
+    }
     
     // Group students by department
     const csDepartment = attendanceRecords.filter(record => 
@@ -208,7 +268,7 @@ const getAttendanceByLectureAndDate = async (req, res) => {
           lecture_name: lecture.lecture_name || lecture.subject,
           start_time: lecture.start_time,
           end_time: lecture.end_time,
-          lecturer_name: teacher?.name || 'N/A'
+          lecturer_name: lecturerName
         },
         attendance: {
           cs: csDepartment,

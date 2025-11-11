@@ -105,12 +105,36 @@ const getTodaysLectureStats = async (req, res) => {
       allLectures.map(async (lecture) => {
         const lectureObj = lecture.toObject();
         
-        // Get lecturer name from email
+        // Get lecturer name(s) from email(s)
         if (lectureObj.lecturer_email) {
-          const teacher = await Teacher.findOne({ email: lectureObj.lecturer_email });
-          lectureObj.lecturer_name = teacher ? teacher.name : 'Lecturer TBA';
+          // Check if it's an array or a single string
+          const lecturerEmails = Array.isArray(lectureObj.lecturer_email) 
+            ? lectureObj.lecturer_email 
+            : [lectureObj.lecturer_email];
+          
+          const lecturerNames = await Promise.all(
+            lecturerEmails.map(async (email) => {
+              const teacher = await Teacher.findOne({ email });
+              return teacher ? teacher.name : null;
+            })
+          );
+          
+          // Filter out null values
+          const validNames = lecturerNames.filter(name => name !== null);
+          
+          if (validNames.length > 0) {
+            lectureObj.lecturer_name = validNames[0]; // First lecturer for display
+            lectureObj.all_lecturers = validNames; // All lecturers for modal
+            lectureObj.lecturer_count = validNames.length;
+          } else {
+            lectureObj.lecturer_name = 'Lecturer TBA';
+            lectureObj.all_lecturers = [];
+            lectureObj.lecturer_count = 0;
+          }
         } else {
           lectureObj.lecturer_name = 'Lecturer TBA';
+          lectureObj.all_lecturers = [];
+          lectureObj.lecturer_count = 0;
         }
         
         // Count students for this lecture (matching intake and streams)

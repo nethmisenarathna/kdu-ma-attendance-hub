@@ -118,8 +118,10 @@ exports.getDashboardStats = async (req, res) => {
     // Get total students
     const totalStudents = await Student.countDocuments();
     
-    // Get total courses (lectures)
-    const totalCourses = await Lecture.countDocuments();
+    // Get total courses (lectures) - only count lectures with 'code' field
+    const totalCourses = await Lecture.countDocuments({
+      code: { $exists: true, $ne: null }
+    });
     
     // Get completion rate
     const { startStr, endStr } = getWeekDateRange();

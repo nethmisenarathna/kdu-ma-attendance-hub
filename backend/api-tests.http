@@ -1,25 +1,68 @@
 ### Health Check
 GET http://localhost:5000/api/health
-
-### Get All Teachers
+###
 GET http://localhost:5000/api/teachers
-
-### Get All Students
+###
 GET http://localhost:5000/api/students
-
-### Get All Lectures
+###
 GET http://localhost:5000/api/lectures
-
-### Get All Class Sessions
+###
 GET http://localhost:5000/api/class-sessions
-
-### Get All Attendance Records
+###
 GET http://localhost:5000/api/attendance
-
-### Get All Attendance Summaries
+###
 GET http://localhost:5000/api/attendance-summary
+### Export CS Attendance Summary (Excel)
+GET http://localhost:5000/api/attendance/export?stream=CS&startDate=2025-01-01&endDate=2025-12-31
+### Export SE Attendance Summary (Excel)
+GET http://localhost:5000/api/attendance/export?stream=SE&startDate=2025-01-01&endDate=2025-12-31
+### Export CE Attendance Summary (Excel)
+GET http://localhost:5000/api/attendance/export?stream=CE&startDate=2025-01-01&endDate=2025-12-31
+### Export CS Attendance Summary with Custom Date Range
+GET http://localhost:5000/api/attendance/export?stream=CS&startDate=2025-11-01&endDate=2025-11-12
+### Get Report Statistics
+GET http://localhost:5000/api/reports/stats
+### Generate Report (Attendance Summary)
+POST http://localhost:5000/api/reports/generate
+Content-Type: application/json
 
-### Create a New Teacher
+{
+  "type": "attendance_summary",
+  "stream": "CS",
+  "startDate": "2025-01-01",
+  "endDate": "2025-12-31"
+}
+### Generate Monthly Report
+POST http://localhost:5000/api/reports/generate
+Content-Type: application/json
+
+{
+  "type": "monthly_summary",
+  "stream": "CS",
+  "month": 11,
+  "year": 2025
+}
+### Download Report (Attendance Summary)
+POST http://localhost:5000/api/reports/download
+Content-Type: application/json
+
+{
+  "type": "attendance_summary",
+  "stream": "CS",
+  "startDate": "2025-01-01",
+  "endDate": "2025-12-31"
+}
+### Download Monthly Report (November 2025)
+POST http://localhost:5000/api/reports/download
+Content-Type: application/json
+
+{
+  "type": "monthly_summary",
+  "stream": "SE",
+  "month": 11,
+  "year": 2025
+}
+###
 POST http://localhost:5000/api/teachers
 Content-Type: application/json
 
@@ -32,17 +75,14 @@ Content-Type: application/json
   "phone": "+94771234999",
   "specialization": "Testing"
 }
-
-### Get Teacher by ID
+###
 GET http://localhost:5000/api/teachers/TCH001
-
-### Update Teacher
+###
 PUT http://localhost:5000/api/teachers/TCH999
 Content-Type: application/json
 
 {
   "phone": "+94771234888"
 }
-
-### Delete Teacher
+###
 DELETE http://localhost:5000/api/teachers/TCH999

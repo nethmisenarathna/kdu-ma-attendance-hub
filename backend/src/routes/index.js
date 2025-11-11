@@ -13,6 +13,7 @@ const classSessionRoutes = require('./classSessions');
 const attendanceRoutes = require('./attendance');
 const attendanceSummaryRoutes = require('./attendanceSummary');
 const dashboardRoutes = require('./dashboard');
+const reportsRoutes = require('./reports');
 
 // Use route modules
 router.use('/auth', authRoutes);
@@ -26,6 +27,7 @@ router.use('/class-sessions', classSessionRoutes);
 router.use('/attendance', attendanceRoutes);
 router.use('/attendance-summary', attendanceSummaryRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/reports', reportsRoutes);
 
 // Health check route
 router.get('/health', (req, res) => {

@@ -47,6 +47,8 @@ export default function Dashboard() {
   const [todaysLectures, setTodaysLectures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAllLectures, setShowAllLectures] = useState(false);
+  const [selectedLecture, setSelectedLecture] = useState(null);
+  const [showLectureModal, setShowLectureModal] = useState(false);
 
   // Helper function to format time from ISO string or time string
   const formatTime = (timeStr) => {
@@ -190,8 +192,16 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // Handler to view lecture details
+  const handleViewLectureDetails = (lecture, e) => {
+    e.stopPropagation(); // Prevent navigation to attendance sheet
+    setSelectedLecture(lecture);
+    setShowLectureModal(true);
+  };
+
   // Handler to navigate to attendance sheet
   const handleViewAttendance = (lecture) => {
+    if (showLectureModal) return; // Don't navigate if modal is open
     const today = new Date().toISOString().split('T')[0];
     const lectureId = lecture.lecture_id || lecture.lecture_code;
     navigate(`/attendance/${lectureId}/${today}`);
@@ -273,9 +283,19 @@ export default function Dashboard() {
                       <h3 className="font-medium text-gray-900 truncate flex-1">{lecture.subject}</h3>
                       <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     </div>
-                    <p className="text-sm text-gray-600 truncate mb-1">
-                      {lecture.lecturer_name || 'Lecturer TBA'}
-                    </p>
+                    <div className="flex items-center gap-1 mb-1">
+                      <p className="text-sm text-gray-600 truncate flex-1">
+                        {lecture.lecturer_name || 'Lecturer TBA'}
+                      </p>
+                      {lecture.lecturer_count && lecture.lecturer_count > 1 && (
+                        <button
+                          onClick={(e) => handleViewLectureDetails(lecture, e)}
+                          className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-0.5 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
+                        >
+                          +{lecture.lecturer_count - 1} more
+                        </button>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500 mb-2">
                       {lecture.displayTime}
                     </p>
@@ -319,7 +339,106 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Removed Modal - Now using inline expansion */}
+      {/* Lecture Details Modal */}
+      {showLectureModal && selectedLecture && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">Lecture Details</h3>
+              <button 
+                onClick={() => setShowLectureModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="px-6 py-4 space-y-4">
+              <div>
+                <h4 className="font-medium text-gray-900 mb-1">{selectedLecture.subject}</h4>
+                <p className="text-sm text-gray-600">{selectedLecture.lecture_code}</p>
+              </div>
+              
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-2">Lecturers</p>
+                {selectedLecture.all_lecturers && selectedLecture.all_lecturers.length > 0 ? (
+                  <ul className="space-y-2">
+                    {selectedLecture.all_lecturers.map((lecturer, index) => (
+                      <li key={index} className="flex items-center gap-2 text-sm text-gray-700">
+                        <GraduationCap className="h-4 w-4 text-gray-400" />
+                        {lecturer}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500">No lecturers assigned</p>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Time</p>
+                  <p className="text-sm text-gray-700">{selectedLecture.displayTime}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Status</p>
+                  <StatusBadge status={selectedLecture.status} />
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Location</p>
+                <p className="text-sm text-gray-700">{selectedLecture.location || 'Location TBA'}</p>
+              </div>
+              
+              {selectedLecture.student_count > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Students</p>
+                  <p className="text-sm text-gray-700">{selectedLecture.student_count} students enrolled</p>
+                </div>
+              )}
+              
+              {selectedLecture.intake && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Intake</p>
+                  <p className="text-sm text-gray-700">Intake {selectedLecture.intake}</p>
+                </div>
+              )}
+              
+              {selectedLecture.streams && selectedLecture.streams.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Streams</p>
+                  <div className="flex gap-1 flex-wrap">
+                    {selectedLecture.streams.map((stream, index) => (
+                      <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                        {stream}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={() => setShowLectureModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setShowLectureModal(false);
+                  handleViewAttendance(selectedLecture);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+              >
+                View Attendance
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
