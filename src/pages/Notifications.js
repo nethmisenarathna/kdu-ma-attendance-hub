@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, AlertCircle, CheckCircle, Info, Calendar } from 'lucide-react';
+import { Bell, CheckCircle, AlertCircle, Info, X, Calendar } from 'lucide-react';
 import notificationService from '../services/notificationService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Notifications() {
+  usePageTitle('Notifications');
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Send, AlertCircle, CheckCircle } from 'lucide-react';
 import notificationService from '../services/notificationService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Message() {
+  usePageTitle('Messages');
   const [formData, setFormData] = useState({
     title: '',
     message: '',

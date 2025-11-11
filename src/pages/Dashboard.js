@@ -15,8 +15,10 @@ import { StatusBadge } from '../components/StatusBadge';
 import { lectureService } from '../services/lectureService';
 import { dashboardService } from '../services/dashboardService';
 import statsService from '../services/statsService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Dashboard() {
+  usePageTitle('Dashboard');
   const navigate = useNavigate();
   const [lectureStats, setLectureStats] = useState({
     todaysLectures: 0,

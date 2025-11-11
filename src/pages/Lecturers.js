@@ -2,8 +2,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { StatusBadge } from '../components/StatusBadge';
 import { Search, Grid, List, ArrowUpDown, Plus, X, RefreshCw } from 'lucide-react';
 import { lecturerService } from '../services/lecturerService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const Lecturers = () => {
+  usePageTitle('Lecturers');
+  
   // API Data State
   const [lecturersData, setLecturersData] = useState([]);
   const [loading, setLoading] = useState(true);

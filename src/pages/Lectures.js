@@ -1,8 +1,11 @@
 ﻿import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Grid, List, ArrowUpDown, RefreshCw, Clock, MapPin, Users, Mail, Phone, User, X } from 'lucide-react';
 import { lectureService } from '../services/lectureService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const Lectures = () => {
+  usePageTitle('Lectures');
+  
   // API Data State
   const [lecturesData, setLecturesData] = useState([]);
   const [lecturersData, setLecturersData] = useState([]); // Store all lecturers

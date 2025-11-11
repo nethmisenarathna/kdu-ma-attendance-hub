@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Lock, X, Eye, EyeOff } from 'lucide-react';
 import authService from '../services/authService';
 import adminService from '../services/adminService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Profile() {
+  usePageTitle('Profile');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

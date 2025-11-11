@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import attendanceService from '../services/attendanceService';
 import { Printer, ArrowLeft, Calendar, Clock, BookOpen, User } from 'lucide-react';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const AttendanceSheet = () => {
   const { lectureId, date } = useParams();
@@ -9,6 +10,8 @@ const AttendanceSheet = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [attendanceData, setAttendanceData] = useState(null);
+
+  usePageTitle(`Attendance - ${lectureId || 'Lecture'}`);
 
   useEffect(() => {
     fetchAttendanceData();

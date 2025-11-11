@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { StatusBadge } from '../components/StatusBadge';
 import { List, Grid, Search, ArrowUpDown, RefreshCw } from 'lucide-react';
 import { studentService } from '../services/studentService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 // Students data will be fetched from API
 const studentsDataStatic = [
@@ -128,6 +129,8 @@ const studentsDataStatic = [
 ];
 
 export default function Students() {
+  usePageTitle('Students');
+  
   // API Data State
   const [studentsData, setStudentsData] = useState([]);
   const [loading, setLoading] = useState(true);

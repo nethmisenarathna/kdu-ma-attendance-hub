@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Download, TrendingUp, X } from 'lucide-react';
 import { StatsCard } from '../components/StatsCard';
 import { getReportStats, generateReport, downloadReport } from '../services/reportService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const reportsData = [
   {
@@ -19,6 +20,7 @@ const reportsData = [
 ];
 
 export default function Reports() {
+  usePageTitle('Reports');
   const [stats, setStats] = useState({
     totalReports: 0,
     totalDownloads: 0,
