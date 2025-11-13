@@ -20,7 +20,7 @@ const Lecturers = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState('table'); // 'table' or 'list'
   
   // Modal states
   const [viewingLecturer, setViewingLecturer] = useState(null);
@@ -266,50 +266,46 @@ const Lecturers = () => {
       {!loading && !error && (
         <>
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Lecturers</h1>
-          <p className="mt-2 text-gray-600">Manage faculty members and their information</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Lecturers</h1>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Manage faculty members and their information ({lecturersData.length} lecturers)</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          {/* Refresh Button */}
-          <button
-            onClick={handleRefresh}
-            disabled={loading}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-medium flex items-center gap-2 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          {/* View Toggle - Desktop only */}
-          <div className="hidden lg:flex border border-gray-300 rounded-md">
+        
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          {/* View Toggle - Desktop Only */}
+          <div className="hidden lg:flex bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode('table')}
-              className={`px-3 py-2 text-sm font-medium rounded-l-md ${
-                viewMode === 'table' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'table'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               <Grid className="h-4 w-4" />
+              Table
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-3 py-2 text-sm font-medium rounded-r-md ${
-                viewMode === 'list' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               <List className="h-4 w-4" />
+              List
             </button>
           </div>
+          
           <button 
-            onClick={() => setShowAddModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2"
+            onClick={handleRefresh}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-md font-medium text-sm transition-colors"
+            disabled={loading}
           >
-            <Plus className="h-4 w-4" />
-            Add Lecturer
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
           </button>
         </div>
       </div>
@@ -422,9 +418,6 @@ const Lecturers = () => {
                       <ArrowUpDown className="h-3 w-3" />
                     </button>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -444,28 +437,6 @@ const Lecturers = () => {
                         {lecturer.assigned_lectures_count} lectures
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleView(lecturer)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => handleEdit(lecturer)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(lecturer)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -474,51 +445,77 @@ const Lecturers = () => {
         </div>
       )}
 
-      {/* Mobile List View */}
-      <div className="lg:hidden bg-white shadow-sm rounded-lg border">
-        <div className="divide-y divide-gray-200">
+      {/* Desktop List View */}
+      {viewMode === 'list' && (
+        <div className="hidden lg:block space-y-4">
           {paginatedData.map((lecturer) => (
-            <div key={lecturer.id} className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900">{lecturer.name}</h3>
-                  <p className="text-xs text-gray-500">{lecturer.email}</p>
+            <div key={lecturer.id} className="bg-white shadow-sm rounded-lg border p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+                    {lecturer.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">{lecturer.name}</h3>
+                    <p className="text-sm text-gray-600">{lecturer.email}</p>
+                  </div>
                 </div>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {lecturer.assigned_lectures_count} lectures
-                </span>
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Department:</span>
-                  <span className="text-gray-900">{lecturer.department}</span>
+                <div className="flex items-center space-x-6">
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{lecturer.department}</p>
+                    <p className="text-sm text-gray-600">Employee ID: {lecturer.employee_id}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {lecturer.assigned_lectures_count} lectures
+                    </span>
+                  </div>
+                  <button 
+                    onClick={() => handleView(lecturer)}
+                    className="text-blue-600 hover:text-blue-900 font-medium"
+                  >
+                    View Details
+                  </button>
                 </div>
-              </div>
-
-              <div className="mt-4 flex space-x-3">
-                <button
-                  onClick={() => handleView(lecturer)}
-                  className="flex-1 text-center py-2 px-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  View
-                </button>
-                <button
-                  onClick={() => handleEdit(lecturer)}
-                  className="flex-1 text-center py-2 px-3 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(lecturer)}
-                  className="text-center py-2 px-3 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-white hover:bg-red-50"
-                >
-                  Delete
-                </button>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Mobile List View */}
+      <div className="md:hidden space-y-4">
+        {paginatedData.map((lecturer) => (
+          <div key={lecturer.id} className="bg-white shadow-sm rounded-lg border p-4">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">{lecturer.name}</h3>
+                <p className="text-sm text-gray-600">{lecturer.email}</p>
+              </div>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {lecturer.assigned_lectures_count} lectures
+              </span>
+            </div>
+            
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">Employee ID:</span>
+                <span className="text-sm text-gray-900">{lecturer.employee_id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">Department:</span>
+                <span className="text-sm text-gray-900">{lecturer.department}</span>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => handleView(lecturer)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-md text-sm font-medium"
+            >
+              View Details
+            </button>
+          </div>
+        ))}
       </div>
 
       {/* Pagination */}

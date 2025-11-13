@@ -223,44 +223,47 @@ const Lectures = () => {
       {!loading && !error && (
         <>
           {/* Header */}
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Lectures</h1>
-              <p className="mt-2 text-gray-600">Manage course lectures and schedules</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Lectures</h1>
+              <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Manage course lectures and schedules ({lecturesData.length} lectures)</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* Refresh Button */}
-              <button
+            
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+              {/* View Toggle - Desktop Only */}
+              <div className="hidden lg:flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'table'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Grid className="h-4 w-4" />
+                  Table
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <List className="h-4 w-4" />
+                  List
+                </button>
+              </div>
+              
+              <button 
                 onClick={handleRefresh}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-md font-medium text-sm transition-colors"
                 disabled={loading}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md font-medium flex items-center gap-2 disabled:opacity-50"
               >
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
-              {/* View Toggle */}
-              <div className="hidden lg:flex border border-gray-300 rounded-md">
-                <button
-                  onClick={() => setViewMode('table')}
-                  className={`px-3 py-2 text-sm font-medium rounded-l-md ${
-                    viewMode === 'table' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Grid className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 py-2 text-sm font-medium rounded-r-md ${
-                    viewMode === 'list' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <List className="h-4 w-4" />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -342,97 +345,184 @@ const Lectures = () => {
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden lg:block bg-white rounded-lg border overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSort('moduleCode')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Module Code
-                        <ArrowUpDown className="h-3 w-3" />
-                      </div>
-                    </th>
-                    <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSort('moduleName')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Module Name
-                        <ArrowUpDown className="h-3 w-3" />
-                      </div>
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Lecturer
-                    </th>
-                    <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSort('intake')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Intake
-                        <ArrowUpDown className="h-3 w-3" />
-                      </div>
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Stream
-                    </th>
-                    <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSort('scheduledDay')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Scheduled Day
-                        <ArrowUpDown className="h-3 w-3" />
-                      </div>
-                    </th>
-                    <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSort('location')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Location
-                        <ArrowUpDown className="h-3 w-3" />
-                      </div>
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Time
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedLectures.map((lecture) => (
-                    <tr key={lecture.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                        {lecture.moduleCode}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{lecture.moduleName}</div>
-                        <div className="text-sm text-gray-500">{lecture.department}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => handleLecturerClick(lecture.lecturerData)}
-                          className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer flex items-center gap-1 transition-colors"
-                        >
-                          <User className="h-4 w-4" />
-                          <div className="text-left">
-                            <div className="font-medium">{lecture.lecturerName}</div>
-                            <div className="text-xs text-gray-500">{lecture.lecturerEmail}</div>
+          {viewMode === 'table' && (
+            <div className="hidden lg:block bg-white rounded-lg border overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSort('moduleCode')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Module Code
+                          <ArrowUpDown className="h-3 w-3" />
+                        </div>
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSort('moduleName')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Module Name
+                          <ArrowUpDown className="h-3 w-3" />
+                        </div>
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Lecturer
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSort('intake')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Intake
+                          <ArrowUpDown className="h-3 w-3" />
+                        </div>
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Stream
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSort('scheduledDay')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Scheduled Day
+                          <ArrowUpDown className="h-3 w-3" />
+                        </div>
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSort('location')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Location
+                          <ArrowUpDown className="h-3 w-3" />
+                        </div>
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Time
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedLectures.map((lecture) => (
+                      <tr key={lecture.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                          {lecture.moduleCode}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{lecture.moduleName}</div>
+                          <div className="text-sm text-gray-500">{lecture.department}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handleLecturerClick(lecture.lecturerData)}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer flex items-center gap-1 transition-colors"
+                          >
+                            <User className="h-4 w-4" />
+                            <div className="text-left">
+                              <div className="font-medium">{lecture.lecturerName}</div>
+                              <div className="text-xs text-gray-500">{lecture.lecturerEmail}</div>
+                            </div>
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <Users className="h-3 w-3 mr-1" />
+                            {lecture.intake}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-wrap gap-1">
+                            {lecture.streams.map(stream => (
+                              <span 
+                                key={stream}
+                                className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                              >
+                                {stream}
+                              </span>
+                            ))}
                           </div>
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <Users className="h-3 w-3 mr-1" />
-                          {lecture.intake}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-wrap gap-1">
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {lecture.scheduledDay}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center text-sm text-gray-900">
+                            <MapPin className="h-4 w-4 mr-1 text-gray-400" />
+                            {lecture.location}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            <div className="flex items-center">
+                              <Clock className="h-4 w-4 mr-1 text-gray-400" />
+                              {lecture.startTime} - {lecture.endTime}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">({lecture.duration})</div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Desktop List View */}
+          {viewMode === 'list' && (
+            <div className="hidden lg:block space-y-4">
+              {paginatedLectures.map((lecture) => (
+                <div key={lecture.id} className="bg-white shadow-sm rounded-lg border p-6 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start space-x-4 flex-1">
+                      <div className="h-12 w-12 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                        {lecture.moduleCode.substring(0, 3)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900">{lecture.moduleName}</h3>
+                            <p className="text-sm text-blue-600 font-medium">{lecture.moduleCode}</p>
+                            <p className="text-sm text-gray-600">{lecture.department}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                          <div>
+                            <button
+                              onClick={() => handleLecturerClick(lecture.lecturerData)}
+                              className="flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              <div className="text-left">
+                                <div className="font-medium">{lecture.lecturerName}</div>
+                                <div className="text-xs text-gray-500">{lecture.lecturerEmail}</div>
+                              </div>
+                            </button>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <div className="flex items-center text-sm text-gray-700">
+                              <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                              <span>{lecture.scheduledDay} • {lecture.startTime} - {lecture.endTime}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-700">
+                              <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                              <span>{lecture.location}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3 flex items-center gap-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <Users className="h-3 w-3 mr-1" />
+                            Intake {lecture.intake}
+                          </span>
                           {lecture.streams.map(stream => (
                             <span 
                               key={stream}
@@ -442,31 +532,13 @@ const Lectures = () => {
                             </span>
                           ))}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {lecture.scheduledDay}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <MapPin className="h-4 w-4 mr-1 text-gray-400" />
-                          {lecture.location}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1 text-gray-400" />
-                            {lecture.startTime} - {lecture.endTime}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">({lecture.duration})</div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
 
           {/* Tablet Table View - Horizontal Scroll */}
           <div className="hidden md:block lg:hidden bg-white shadow-sm rounded-lg border">

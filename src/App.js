@@ -107,7 +107,7 @@ function AppLayout() {
               <Menu className="h-5 w-5" />
             </button>
             <h2 className="font-semibold text-gray-900 text-sm sm:text-base md:text-lg truncate">
-              KDU Faculty Management Portal
+              Faculty of Computing Management Portal
             </h2>
           </div>
           <UserProfile />

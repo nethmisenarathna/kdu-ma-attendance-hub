@@ -103,7 +103,7 @@ export function AppSidebar({ onClose }) {
               className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded" 
             />
             <div>
-              <h1 className="text-base sm:text-lg font-bold text-gray-900">KDU Faculty</h1>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900">Faculty of Computing</h1>
               <p className="text-xs sm:text-sm text-gray-500">Management Hub</p>
             </div>
           </div>

@@ -141,7 +141,6 @@ export default function Students() {
   // Search and Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    department: '',
     intake: '',
     stream: '',
     status: ''
@@ -230,9 +229,8 @@ export default function Students() {
   
   // Get unique values for filter dropdowns
   const filterOptions = useMemo(() => ({
-    departments: [...new Set(studentsData.map(s => s.department))],
     intakes: [...new Set(studentsData.map(s => s.intake))].sort(),
-    streams: [...new Set(studentsData.map(s => s.stream))],
+    streams: [...new Set(studentsData.map(s => s.stream))].sort(),
     statuses: [...new Set(studentsData.map(s => s.status))]
   }), [studentsData]);
 
@@ -245,7 +243,6 @@ export default function Students() {
         student.index_number.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesFilters = 
-        (!filters.department || student.department === filters.department) &&
         (!filters.intake || student.intake === filters.intake) &&
         (!filters.stream || student.stream === filters.stream) &&
         (!filters.status || student.status === filters.status);
@@ -294,7 +291,7 @@ export default function Students() {
   };
 
   const clearFilters = () => {
-    setFilters({ department: '', intake: '', stream: '', status: '' });
+    setFilters({ intake: '', stream: '', status: '' });
     setSearchTerm('');
     setCurrentPage(1);
   };
@@ -412,10 +409,6 @@ export default function Students() {
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
-          
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm sm:text-base w-full sm:w-auto">
-            Add Student
-          </button>
         </div>
       </div>
 
@@ -438,17 +431,6 @@ export default function Students() {
 
           {/* Filter Dropdowns */}
           <div className="flex flex-wrap gap-3">
-            <select
-              value={filters.department}
-              onChange={(e) => handleFilterChange('department', e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">All Departments</option>
-              {filterOptions.departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
-
             <select
               value={filters.intake}
               onChange={(e) => handleFilterChange('intake', e.target.value)}
@@ -569,9 +551,6 @@ export default function Students() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -597,31 +576,6 @@ export default function Students() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <StatusBadge status={student.status} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => handleViewDetails(student)}
-                        className="text-blue-600 hover:text-blue-900 font-medium"
-                        title="View Details"
-                      >
-                        View
-                      </button>
-                      <button 
-                        onClick={() => handleEdit(student)}
-                        className="text-green-600 hover:text-green-900 font-medium"
-                        title="Edit Student"
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(student)}
-                        className="text-red-600 hover:text-red-900 font-medium"
-                        title="Delete Student"
-                      >
-                        Delete
-                      </button>
-                    </div>
                   </td>
                 </tr>
               ))}
@@ -657,26 +611,12 @@ export default function Students() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <StatusBadge status={student.status} />
-                    <div className="flex space-x-3">
-                      <button 
-                        onClick={() => handleViewDetails(student)}
-                        className="text-blue-600 hover:text-blue-900 font-medium"
-                      >
-                        View Details
-                      </button>
-                      <button 
-                        onClick={() => handleEdit(student)}
-                        className="text-green-600 hover:text-green-900 font-medium"
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(student)}
-                        className="text-red-600 hover:text-red-900 font-medium"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    <button 
+                      onClick={() => handleViewDetails(student)}
+                      className="text-blue-600 hover:text-blue-900 font-medium"
+                    >
+                      View Details
+                    </button>
                   </div>
                 </div>
               </div>
@@ -706,9 +646,6 @@ export default function Students() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -728,28 +665,6 @@ export default function Students() {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
                     <StatusBadge status={student.status} />
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => handleViewDetails(student)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        View
-                      </button>
-                      <button 
-                        onClick={() => handleEdit(student)}
-                        className="text-green-600 hover:text-green-900"
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(student)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </div>
                   </td>
                 </tr>
               ))}
