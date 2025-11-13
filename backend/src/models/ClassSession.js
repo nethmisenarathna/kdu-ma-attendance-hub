@@ -1,31 +1,35 @@
 const mongoose = require('mongoose');
 
-// Real ClassSession model based on your database (9 class sessions)
-const realClassSessionSchema = new mongoose.Schema({
-  lecture_code: {
-    type: String,
-    required: true
-  },
+// Real ClassSession model based on your actual database structure
+const classSessionSchema = new mongoose.Schema({
   date: {
-    type: Date,
+    type: String, // Stored as string in your DB: "2025-11-10"
     required: true
   },
-  start_time: {
-    type: String,
+  lecture_id: {
+    type: String, // Links to lecture_code in lectures collection
     required: true
   },
-  end_time: {
-    type: String,
-    required: true
+  expires_at: {
+    type: Date
+  },
+  lecturer_email: {
+    type: String
   },
   status: {
     type: String,
-    enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
-    default: 'upcoming'
+    enum: ['active', 'ongoing', 'finalized', 'cancelled'],
+    default: 'active'
+  },
+  timer_duration_sec: {
+    type: Number
+  },
+  timer_started_at: {
+    type: Date
   }
 }, {
-  timestamps: true,
+  timestamps: false,
   collection: 'class_sessions'
 });
 
-module.exports = mongoose.model('RealClassSession', realClassSessionSchema);
+module.exports = mongoose.model('ClassSession', classSessionSchema, 'class_sessions');

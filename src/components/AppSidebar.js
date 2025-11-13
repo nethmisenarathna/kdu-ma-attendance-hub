@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -8,11 +8,15 @@ import {
   FileText, 
   Bell, 
   User,
-  X
+  X,
+  LogOut,
+  Send
 } from 'lucide-react';
+import authService from '../services/authService';
+import notificationService from '../services/notificationService';
 import kduLogo from '../assets/images/OIP.jpeg';
 
-const menuItems = [
+const baseMenuItems = [
   {
     title: "Dashboard",
     url: "/",
@@ -52,6 +56,41 @@ const menuItems = [
 
 export function AppSidebar({ onClose }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [canSend, setCanSend] = useState(false);
+
+  useEffect(() => {
+    // Check if user can send notifications
+    const checkPermissions = async () => {
+      const hasPermission = await notificationService.canSendNotifications();
+      setCanSend(hasPermission);
+    };
+    checkPermissions();
+  }, []);
+
+  // Build menu items dynamically
+  const menuItems = [...baseMenuItems];
+  
+  // Insert Message link after Reports if user has permission
+  if (canSend) {
+    const reportsIndex = menuItems.findIndex(item => item.title === "Reports");
+    menuItems.splice(reportsIndex + 1, 0, {
+      title: "Message",
+      url: "/message",
+      icon: Send,
+    });
+  }
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Navigate anyway
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen shadow-lg lg:shadow-none">
@@ -64,7 +103,7 @@ export function AppSidebar({ onClose }) {
               className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded" 
             />
             <div>
-              <h1 className="text-base sm:text-lg font-bold text-gray-900">KDU Faculty</h1>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900">Faculty of Computing</h1>
               <p className="text-xs sm:text-sm text-gray-500">Management Hub</p>
             </div>
           </div>
@@ -103,6 +142,16 @@ export function AppSidebar({ onClose }) {
           })}
         </ul>
       </nav>
+
+      <div className="p-3 sm:p-4 border-t border-gray-200">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full"
+        >
+          <LogOut className="h-5 w-5 flex-shrink-0" />
+          <span>Logout</span>
+        </button>
+      </div>
     </div>
   );
 }

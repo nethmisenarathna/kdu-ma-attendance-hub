@@ -31,7 +31,7 @@ const lectureSchema = new mongoose.Schema({
     type: String
   },
   lecturer_email: {
-    type: String
+    type: mongoose.Schema.Types.Mixed  // Can be string or array
   },
   department: {
     type: String
